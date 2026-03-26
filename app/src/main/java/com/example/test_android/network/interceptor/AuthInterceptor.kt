@@ -21,18 +21,29 @@ class AuthInterceptor(private val context: Context) : Interceptor {
         val request = chain.request()
         val response = chain.proceed(request)
 
-        // 检查是否是非 200 的状态码
+        // 1. 先检查 HTTP 状态码（处理原有的 4xx 逻辑）
         if (!response.isSuccessful) {
-            val code = response.code
-            val message = getErrorMessage(code, request.url.toString())
-
-            // 如果是 401，执行特殊的登出逻辑
-            if (code == 401) {
+            if (response.code in 400..499) {
                 handleUnauthorized()
             }
+            return response
+        }
 
-            // 在主线程弹出错误提示
-            showToast(message)
+        val responseBody = response.body
+        val source = responseBody?.source()
+        source?.request(Long.MAX_VALUE) // Buffer 整个响应体
+        val buffer = source?.buffer
+
+        // 克隆一份 body 字符串，防止原数据流关闭导致报错
+        val responseString = buffer?.clone()?.readString(Charsets.UTF_8)
+
+        if (!responseString.isNullOrEmpty()) {
+            // 检查字符串中是否包含业务错误码
+            // 这里的判断可以根据你的 JSON 结构更精确，比如使用 JSONObject 解析
+            if (responseString.contains("\"code\":40000") || responseString.contains("token 失效")) {
+                handleUnauthorized()
+                showToast("登录已失效，请重新登录")
+            }
         }
 
         return response

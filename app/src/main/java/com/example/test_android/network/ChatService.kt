@@ -7,6 +7,7 @@ import retrofit2.http.Query
 import com.example.test_android.model.CallbackResponse
 import com.example.test_android.model.ModelResp
 import com.example.test_android.model.ChatDetailData
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ChatService {

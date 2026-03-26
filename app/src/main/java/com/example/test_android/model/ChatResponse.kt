@@ -96,3 +96,15 @@ data class ChatMessage(
     @SerializedName("system_content")
     val systemContent: String
 )
+
+
+// 对话控制布局
+data class ChatItem(
+    val content: String,
+    val type: Int // 0: 用户, 1: 系统
+) {
+    companion object {
+        const val TYPE_USER = 0
+        const val TYPE_SYSTEM = 1
+    }
+}
