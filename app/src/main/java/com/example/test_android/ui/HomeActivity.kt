@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
-import android.util.Log // ✨ 添加这一行，导入安卓日志工具
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +26,9 @@ class HomeActivity : AppCompatActivity() {
         val btnGetInfo = findViewById<Button>(R.id.btn_get_info)
         val userName = findViewById<TextView>(R.id.user_name)
         val avatarImg = findViewById<ImageView>(R.id.iv_user_avatar)
+        val btnChat = findViewById<Button>(R.id.btn_chat)
+
+
         userName.text = "你好,${tokenManager.getUserData()?.nickName}"
         val imageUrl = "https://myelin.cloud/minio/api/v1/buckets/cephalon-frontend-test/objects/download?preview=true&prefix=${tokenManager.getUserData()?.avatarUrl}&version_id=null"
 
@@ -49,10 +52,6 @@ class HomeActivity : AppCompatActivity() {
             finish()
         }
 
-
-
-
-
         btnGetInfo.setOnClickListener {
             // ✨ 核心：从 Storage 中获取存入的 Token
             val savedData = tokenManager.getUserData()
@@ -69,7 +68,12 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
+        btnChat.setOnClickListener {
+              val intent = Intent(this, ChatActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 
-
+                startActivity(intent)
+                finish()
+        }
     }
 }

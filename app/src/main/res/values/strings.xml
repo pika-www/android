@@ -1,9 +1,15 @@
 <resources>
-    <string name="app_name">Buluo Login</string>
+    <string name="app_name">Boluo Login</string>
     <string name="hello_world_welcome">第一次尝试登录</string>
     <string name="hint_username">请输入账号</string>
     <string name="hint_password">请输入密码</string>
     <string name="btn_login_text">立即登录</string>
     <string name="btn_logout">退出登录</string>
     <string name="btn_get_info">获取个人信息</string>
+    <string name="btn_chat">去聊天</string>
+    <string name="chat_model">大模型广场</string>
+    <string name="official">官方</string>
+    <string name="label_author">%s</string>
+    <string name="label_no_description">暂无描述</string>
+    <string name="label_model_name">%s</string>
 </resources>

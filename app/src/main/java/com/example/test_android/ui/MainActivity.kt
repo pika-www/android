@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.test_android.R
 import com.example.test_android.model.LoginData
 import com.example.test_android.model.LoginRequest
-import com.example.test_android.model.LoginResponse
+import com.example.test_android.model.CallbackResponse
 //import com.example.test_android.network.ApiService
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,13 +25,39 @@ import android.text.Editable
 import com.example.test_android.network.NetworkClient
 import com.google.android.material.textfield.TextInputLayout
 
+import android.os.Handler
+import android.os.Looper
+import androidx.core.os.postDelayed
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+
+
 class MainActivity : AppCompatActivity() {
     private lateinit var tokenManager: TokenManager
+
+    // 示例：让启动页停留，直到数据加载完成
+    private fun keepSplashScreenForData(splashScreen: SplashScreen) {
+        var isReady = false
+        // 模拟 2 秒的后台加载任务
+        Handler(Looper.getMainLooper()).postDelayed({
+            isReady = true
+        }, 2000)
+
+        // 核心逻辑：直到 isReady 为 true，启动页才会消失
+        splashScreen.setKeepOnScreenCondition { !isReady }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 1. 初始化启动屏，这一步会处理主题的切换
+        // 注意：这行代码必须在 setContentView 之前调用！！！
+        val splashScreen = installSplashScreen()
+
+        NetworkClient.init(this) // 👈 必须调用
         // 开启全屏沉浸式模式
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         tokenManager = TokenManager(this)
+        keepSplashScreenForData(splashScreen)
 
         val savedToken  = tokenManager.getUserData()?.token
         // 检测是否有 token
@@ -86,14 +112,6 @@ class MainActivity : AppCompatActivity() {
         })
 
 
-        // 4. 初始化 Retrofit (配置基础域名和 JSON 转换器)
-//        val retrofit = Retrofit.Builder()
-//            .baseUrl("https://test.unicorn.org.cn/" )
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .build()
-//
-//        val apiService = retrofit.create(ApiService::class.java)
-
 
         // 5. 设置登录按钮点击事件
         btnLogin.setOnClickListener {
@@ -110,8 +128,8 @@ class MainActivity : AppCompatActivity() {
                 )
 
                 // ✨ 发起异步网络请求
-                NetworkClient.apiService.login(loginRequest).enqueue(object : Callback<LoginResponse<LoginData>> {
-                    override fun onResponse(call: Call<LoginResponse<LoginData>>, response: Response<LoginResponse<LoginData>>) {
+                NetworkClient.apiService.login(loginRequest).enqueue(object : Callback<CallbackResponse<LoginData>> {
+                    override fun onResponse(call: Call<CallbackResponse<LoginData>>, response: Response<CallbackResponse<LoginData>>) {
                         // 在 Logcat 中打印原始结果，方便调试
                         Log.d("LoginResult", "HTTP 状态码: ${response.code()}")
                         Log.d("LoginResult", "服务器返回内容: ${response.body()}")
@@ -144,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    override fun onFailure(call: Call<LoginResponse<LoginData>>, t: Throwable) {
+                    override fun onFailure(call: Call<CallbackResponse<LoginData>>, t: Throwable) {
                         // 网络连接失败（如：断网、超时）
                         Log.e("LoginResult", "网络连接失败: ${t.message}")
                         Toast.makeText(this@MainActivity, "网络连接失败，请检查网络", Toast.LENGTH_SHORT).show()

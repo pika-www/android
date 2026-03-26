@@ -2,7 +2,7 @@ package com.example.test_android.model
 
 import com.google.gson.annotations.SerializedName
 
-data class LoginResponse<T>(
+data class CallbackResponse<T>(
     val code: Int,
     val msg: String,
     val data: T
